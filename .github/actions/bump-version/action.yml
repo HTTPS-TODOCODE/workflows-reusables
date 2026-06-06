@@ -1,0 +1,58 @@
+name: 'Bump Version'
+description: 'Calculates the next version based on bump type'
+
+inputs:
+  current_version:
+    description: 'Current base version (without SNAPSHOT), e.g. 0.1.0'
+    required: true
+  bump_type:
+    description: 'Type of bump: major, minor, patch'
+    required: true
+    default: 'minor'
+  snapshot:
+    description: 'Whether to append -SNAPSHOT to the result'
+    required: false
+    default: 'false'
+
+outputs:
+  next_version:
+    description: 'The next version string'
+    value: ${{ steps.bump.outputs.next_version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Calculate next version
+      id: bump
+      shell: bash
+      run: |
+        VERSION="${{ inputs.current_version }}"
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+        PATCH="${PATCH:-0}"
+
+        case "${{ inputs.bump_type }}" in
+          major)
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+            ;;
+          minor)
+            MINOR=$((MINOR + 1))
+            PATCH=0
+            ;;
+          patch)
+            PATCH=$((PATCH + 1))
+            ;;
+          *)
+            echo "Invalid bump_type: ${{ inputs.bump_type }}"
+            exit 1
+            ;;
+        esac
+
+        NEXT="${MAJOR}.${MINOR}.${PATCH}"
+        if [[ "${{ inputs.snapshot }}" == "true" ]]; then
+          NEXT="${NEXT}-SNAPSHOT"
+        fi
+
+        echo "next_version=${NEXT}" >> $GITHUB_OUTPUT
+        echo "Bumped $VERSION -> $NEXT (type: ${{ inputs.bump_type }})"

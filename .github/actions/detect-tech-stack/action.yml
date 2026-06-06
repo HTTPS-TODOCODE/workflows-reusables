@@ -1,0 +1,15 @@
+name: Detect Tech Stack
+description: Detects the technology stack used by the repository
+
+outputs:
+  stack:
+    description: The detected technology stack (e.g., java-maven, node)
+    value: ${{ steps.detect.outputs.stack }}
+
+runs:
+  using: composite
+  steps:
+    - name: Detect technology stack
+      id: detect
+      shell: bash
+      run: ${{ github.action_path }}/detect.sh

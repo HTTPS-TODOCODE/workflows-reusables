@@ -1,0 +1,44 @@
+name: 'Set Version'
+description: 'Sets the project version in pom.xml using Maven Versions Plugin'
+
+inputs:
+  version:
+    description: 'New version to set (e.g. 0.1.0 or 0.2.0-SNAPSHOT)'
+    required: true
+  commit:
+    description: 'Whether to commit the version change'
+    required: false
+    default: 'true'
+  commit_message:
+    description: 'Commit message for version change'
+    required: false
+    default: 'chore: bump version to {version} [skip ci]'
+  git_user_name:
+    description: 'Git user name for commit'
+    required: false
+    default: 'github-actions[bot]'
+  git_user_email:
+    description: 'Git user email for commit'
+    required: false
+    default: 'github-actions[bot]@users.noreply.github.com'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set version in pom.xml
+      shell: bash
+      run: ${{ github.action_path }}/set-version.sh
+      env:
+        STACK: ${{ inputs.stack }}
+        NEW_VERSION: ${{ inputs.version }}
+
+    - name: Commit version change
+      if: ${{ inputs.commit == 'true' }}
+      shell: bash
+      run: |
+        git config user.name "${{ inputs.git_user_name }}"
+        git config user.email "${{ inputs.git_user_email }}"
+        COMMIT_MSG="${{ inputs.commit_message }}"
+        COMMIT_MSG="${COMMIT_MSG/\{version\}/${{ inputs.version }}}"
+        git add -A
+        git diff --staged --quiet || git commit -m "${COMMIT_MSG}"

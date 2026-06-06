@@ -1,0 +1,148 @@
+name: '[Reusable] Create Release Branch'
+
+on:
+  workflow_call:
+    inputs:
+      stack:
+        description: 'Technology stack of the project (e.g., java-maven, node)'
+        type: string
+        required: false
+        default: ''
+      stack_version:
+        description: 'Technology stack version (e.g., Java: 21, Node.js: 20)'
+        type: string
+        required: false
+        default: ''
+      bump_type:
+        description: 'Type of version bump for the release branch (major, minor, patch)'
+        type: string
+        required: false
+        default: 'minor'
+      git_user_name:
+        description: 'Git user name for committing the version change'
+        type: string
+        required: false
+        default: 'github-actions[bot]'
+      git_user_email:
+        description: 'Git user email for committing the version change'
+        type: string
+        required: false
+        default: 'github-actions[bot]@users.noreply.github.com'
+    secrets:
+      gh_token:
+        description: 'GitHub token with permissions to push branches'
+        required: true
+
+jobs:
+  create_release:
+    name: 'Create Release from develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: develop
+          fetch-depth: 0
+          token: ${{ secrets.gh_token }}
+
+      - name: 'Detect tech stack'
+        id: detect_stack
+        uses: ./.github/actions/detect-tech-stack
+
+      - name: 'Resolve effective stack'
+        id: resolve_stack
+        run: |
+          OVERRIDE="${{ inputs.stack }}"
+          DETECTED="${{ steps.detect.outputs.stack }}"
+          EFFECTIVE="${OVERRIDE:-$DETECTED}"
+          if [[ -z "$EFFECTIVE" || "$EFFECTIVE" == "none" ]]; then
+            echo "❌ Could not determine technology stack."
+            exit 1
+          fi
+          echo "effective=${EFFECTIVE}" >> $GITHUB_OUTPUT
+          echo "ℹ️ Using stack: $EFFECTIVE"
+
+      - name: 'Setup environment'
+        uses: ./.github/actions/setup-environment
+        with:
+          stack: ${{ steps.resolve_stack.outputs.effective }}
+          version: ${{ inputs.stack_version }}
+
+      - name: 'Configure Git'
+        uses: ./.github/actions/configure-git
+        with:
+          git_user_name: ${{ inputs.git_user_name }}
+          git_user_email: ${{ inputs.git_user_email }}
+
+      - name: 'Get current version'
+        id: version
+        uses: ./.github/actions/get-version
+        with:
+          stack: ${{ steps.resolve_stack.outputs.effective }}
+
+      - name: Validate that develop is SNAPSHOT
+        shell: bash
+        run: |
+          if [[ "${{ steps.version.outputs.is_snapshot }}" != "true" ]]; then
+            echo "❌ develop must be a SNAPSHOT version. Found: ${{ steps.version.outputs.version }}"
+            exit 1
+          fi
+      - name: Compute release info
+        id: release_info
+        shell: bash
+        run: |
+          BASE="${{ steps.version.outputs.base_version }}"
+          MAJOR="${{ steps.version.outputs.major }}"
+          MINOR="${{ steps.version.outputs.minor }}"
+          RELEASE_BRANCH="release/${MAJOR}.${MINOR}"
+          TAG="v${BASE}"
+          echo "release_branch=${RELEASE_BRANCH}" >> $GITHUB_OUTPUT
+          echo "release_version=${BASE}" >> $GITHUB_OUTPUT
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          
+      - name: Create release branch
+        shell: bash
+        run: git checkout -b "${{ steps.release_info.outputs.release_branch }}"
+
+      - name: Create release tag
+        uses: ./.github/actions/create-git-tag
+        with:
+          tag: ${{ steps.release_info.outputs.tag }}
+          message: 'Release ${{ steps.release_info.outputs.tag }}'
+
+      - name: Switch back to develop
+        shell: bash
+        run: |
+          git checkout develop
+          git pull origin develop
+
+      - name: Compute next snapshot version
+        id: next_snapshot
+        uses: ./.github/actions/bump-version-maven
+        with:
+          current_version: ${{ steps.version.outputs.base_version }}
+          bump_type: ${{ inputs.bump_type }}
+          snapshot: 'true'
+
+      - name: Update develop to next snapshot
+        uses: ./.github/actions/set-version
+        with:
+          stack: ${{ steps.resolve_stack.outputs.effective }}
+          version: ${{ steps.next_snapshot.outputs.new_version }}
+          commit: 'true'
+          commit_message: 'chore: bump develop to next snapshot version ${{ steps.next_snapshot.outputs.new_version }} [skip ci]'
+
+      - name: Push develop
+        shell: bash
+        run: git push origin develop
+
+      - name: Summary
+        shell: bash
+        run: |
+          echo "## ✅ Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Stack | \`${{ steps.stack.outputs.effective }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Release branch | \`${{ steps.release_info.outputs.release_branch }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Release version | \`${{ steps.release_info.outputs.release_version }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | \`${{ steps.release_info.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Next develop | \`${{ steps.next_snapshot.outputs.new_version }}\` |" >> $GITHUB_STEP_SUMMARY

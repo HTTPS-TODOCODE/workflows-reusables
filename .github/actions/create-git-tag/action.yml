@@ -1,0 +1,36 @@
+name: 'Create Git Tag'
+description: 'Creates and pushes a Git tag to origin'
+
+inputs:
+  tag:
+    description: 'Tag name to create (e.g. v0.1.0)'
+    required: true
+  message:
+    description: 'Annotated tag message. If empty, a lightweight tag is created.'
+    required: false
+    default: ''
+
+outputs:
+  tag:
+    description: 'The tag that was created'
+    value: ${{ steps.tag.outputs.tag }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create and push tag
+      id: tag
+      shell: bash
+      run: |
+        TAG="${{ inputs.tag }}"
+        MESSAGE="${{ inputs.message }}"
+
+        if [[ -z "$MESSAGE" ]]; then
+          git tag "$TAG"
+        else
+          git tag -a "$TAG" -m "$MESSAGE"
+        fi
+
+        git push origin "$TAG"
+        echo "tag=${TAG}" >> $GITHUB_OUTPUT
+        echo "✅ Tag '$TAG' created and pushed."

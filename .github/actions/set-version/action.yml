@@ -13,14 +13,6 @@ inputs:
     description: 'Commit message for version change'
     required: false
     default: 'chore: bump version to {version} [skip ci]'
-  git_user_name:
-    description: 'Git user name for commit'
-    required: false
-    default: 'github-actions[bot]'
-  git_user_email:
-    description: 'Git user email for commit'
-    required: false
-    default: 'github-actions[bot]@users.noreply.github.com'
 
 runs:
   using: 'composite'
@@ -36,8 +28,6 @@ runs:
       if: ${{ inputs.commit == 'true' }}
       shell: bash
       run: |
-        git config user.name "${{ inputs.git_user_name }}"
-        git config user.email "${{ inputs.git_user_email }}"
         COMMIT_MSG="${{ inputs.commit_message }}"
         COMMIT_MSG="${COMMIT_MSG/\{version\}/${{ inputs.version }}}"
         git add -A

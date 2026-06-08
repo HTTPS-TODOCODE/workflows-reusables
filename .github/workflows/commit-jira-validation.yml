@@ -11,11 +11,6 @@ on:
       JIRA_TOKEN:
         required: true
 
-  push:
-    branches:
-      - 'feature/**'
-      - 'bugfix/**'
-
 jobs:
   validate-commit:
     name: Validate Commits

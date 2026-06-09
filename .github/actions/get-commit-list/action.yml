@@ -35,11 +35,12 @@ runs:
             #    development branch.
             echo "No baseline SHA found. Searching last divergement"
             
-            DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD \
-              | sed 's@^refs/remotes/origin/@@')
+            DEFAULT_BRANCH=$(jq -r '.repository.default_branch' "$GITHUB_EVENT_PATH")
 
-            echo "Default branch detected: $DEFAULT_BRANCH"
-
+            echo "Default branch: $DEFAULT_BRANCH"
+            
+            git fetch origin "$DEFAULT_BRANCH" --depth=1
+            
             DIVERGED_SHA=$(git merge-base HEAD "origin/$DEFAULT_BRANCH" 2>/dev/null || echo "")
           
             if [ -z "$DIVERGED_SHA" ]; then

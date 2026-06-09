@@ -35,7 +35,11 @@ runs:
         # We convert the input into a temp file to be processed in while loop
         echo "${{ inputs.commit-messages }}" > /tmp/messages_to_process.txt
 
-        while IFS= read -r COMMIT_MSG || [ -n "COMMIT_MSG" ]; do
+        echo "==== FILE CONTENT ===="
+        cat /tmp/messages_to_process.txt
+        echo "======================"
+
+        while IFS= read -r COMMIT_MSG || [ -n "$COMMIT_MSG" ]; do
           # Skip empty lines that git log might produce
           if [ -z "$COMMIT_MSG" ]; then
             continue

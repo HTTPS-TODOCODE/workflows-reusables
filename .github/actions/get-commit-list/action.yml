@@ -50,14 +50,16 @@ runs:
 
           echo "Commits to validate:"
           cat /tmp/raw_commits.txt
+          echo ""
 
           # Count how many commits we are about to validate
           COUNT=$(grep -c "" /tmp/raw_commits.txt 2>/dev/null || echo 0)
-          echo "Total commits to validate: $COUNT\n"
+          echo "Total commits to validate: $COUNT"
 
           # Extract the messages in multiline string format for it to be read by GitHub Actions
-          EOF=$(date +%s | sha256sum | base64 | head -c 20)
+          EOF="COMMIT_MESSAGES_$(date +%s)"
 
           echo "messages<<$EOF" >> "$GITHUB_OUTPUT"
           cat /tmp/raw_commits.txt >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
           echo "$EOF" >> "$GITHUB_OUTPUT"

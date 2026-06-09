@@ -22,10 +22,10 @@ runs:
       run: |
           LAST_SHA="${{ inputs.last-success-sha }}"
 
-          echo "Repository: $GITHUB_REPOSITORY"
-          echo "Workspace: $GITHUB_WORKSPACE"
           pwd
-          git remote -v
+          git remote get-url origin
+          git branch
+          git rev-parse HEAD
           
           if [ -n "$LAST_SHA" ] && ! git -C "$GITHUB_WORKSPACE" cat-file -e "${LAST_SHA}^{commit}" 2>/dev/null; then
             echo "WARNING: Last successful SHA $LAST_SHA no longer exists in history."

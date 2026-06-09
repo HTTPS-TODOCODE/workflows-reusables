@@ -30,7 +30,7 @@ runs:
         JIRA_TOKEN: ${{ inputs.jira-token }}
         JIRA_PREFIX: ${{ inputs.jira-prefix }}
       run: |
-        FAILED = 0
+        FAILED=0
 
         # We convert the input into a temp file to be processed in while loop
         echo "${{ inputs.commit-messages }}" > /tmp/messages_to_process.txt
@@ -92,7 +92,7 @@ runs:
 
           echo "PASSED: $ISSUE_KEY"
 
-        done < /tmp/commit_messages.txt
+        done < /tmp/messages_to_process.txt
 
         echo "--------------------------------------------"
 

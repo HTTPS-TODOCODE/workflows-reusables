@@ -40,7 +40,7 @@ runs:
 
             echo "Default branch detected: $DEFAULT_BRANCH"
 
-            DIVERGED_SHA=$(git merge-base HEAD origin/develop 2>/dev/null || echo "")
+            DIVERGED_SHA=$(git merge-base HEAD "origin/$DEFAULT_BRANCH" 2>/dev/null || echo "")
           
             if [ -z "$DIVERGED_SHA" ]; then
               echo "No merge base found. Collecting all commits in history"

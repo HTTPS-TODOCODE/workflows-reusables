@@ -23,12 +23,6 @@ jobs:
         with:
           path: app
           fetch-depth: 0
-      
-      - name: Checkout Reusable Actions
-        uses: actions/checkout@v4
-        with:
-          repository: 'HTTPS-TODOCODE/workflows-reusables'
-          ref: 'feature/kadanarpa-actions'
 
       # EXTRACT LASTEST COMMITS SINCE LAST SUCCESSFULLY PUSH
       # - Obtains last successful run  of this same workflow on this same branch
@@ -36,7 +30,7 @@ jobs:
       #   the HEAD Commits
       - name: Get SHA ID of Last Success Run
         id: last-success
-        uses: ./.github/actions/get-last-success
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/get-last-success@feature/kadanarpa-actions
         with:
           workflow-name: 'commit-jira-validation.yml'
 
@@ -45,13 +39,13 @@ jobs:
       #   the commit list
       - name: Get List of Commit Messages to be Validated
         id: commits-list
-        uses: ./.github/actions/get-commit-list
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/get-commit-list@feature/kadanarpa-actions
         with:
           last-success-sha: ${{ steps.last-success.outputs.shaId }}
 
       # FINALLY, PROCESS AND VALIDATE EACH COMMIT MESSAGE
       - name: Validate Each Commit against JIRA
-        uses: ./.github/actions/validate-jira-commits
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/validate-jira-commits@feature/kadanarpa-actions
         with:
           commit-messages: ${{ steps.commits-list.outputs.commit-messages }}
           jira-url: ${{ secrets.JIRA_URL }}

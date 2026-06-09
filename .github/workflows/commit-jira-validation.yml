@@ -18,10 +18,17 @@ jobs:
 
     steps:
       # CHECKOUT REQUIRED TO ACCESS REPOSITORY CONTENTS
-      - name: Checkout Repository
+      - name: Checkout Application Repository
         uses: actions/checkout@v4
         with:
+          path: app
           fetch-depth: 0
+      
+      - name: Checkout Reusable Actions
+        uses: actions/checkout@v4
+        with:
+          repository: 'HTTPS-TODOCODE/workflows-reusables'
+          ref: 'feature/kadanarpa-actions'
 
       # EXTRACT LASTEST COMMITS SINCE LAST SUCCESSFULLY PUSH
       # - Obtains last successful run  of this same workflow on this same branch

@@ -39,8 +39,6 @@ runs:
 
             echo "Default branch: $DEFAULT_BRANCH"
             
-            git fetch origin "$DEFAULT_BRANCH" --depth=1
-            
             DIVERGED_SHA=$(git merge-base HEAD "origin/$DEFAULT_BRANCH" 2>/dev/null || echo "")
           
             if [ -z "$DIVERGED_SHA" ]; then

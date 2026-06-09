@@ -79,6 +79,8 @@ runs:
           ISSUE_TYPE=$(echo "$RESPONSE" | jq -r '.fields.issuetype.name')
           ISSUE_STATUS=$(echo "$RESPONSE" | jq -r '.fields.status.name')
 
+          ISSUE_STATUS_NORMALIZED=$(echo "$ISSUE_STATUS" | tr '[:lower:]' '[:upper:]')
+
           echo "Type: $ISSUE_TYPE | Status: $ISSUE_STATUS"
 
           if [ "$ISSUE_TYPE" != "Story" ]; then
@@ -87,11 +89,12 @@ runs:
             continue
           fi
 
-          if [ "$ISSUE_STATUS" != "NEW" ] && [ "$ISSUE_STATUS" != "IN PROGRESS" ]; then
-            echo "ERROR: $ISSUE_KEY has status '$ISSUE_STATUS'."
-            echo "Only 'New' and 'In Progress' are allowed."
-            FAILED=1
-            continue
+          if [ "$ISSUE_STATUS_NORMALIZED" != "NEW" ] \
+             && [ "$ISSUE_STATUS_NORMALIZED" != "IN PROGRESS" ]; then
+              echo "ERROR: $ISSUE_KEY has status '$ISSUE_STATUS'."
+              echo "Only 'New' and 'In Progress' are allowed."
+              FAILED=1
+              continue
           fi
 
           echo "PASSED: $ISSUE_KEY"

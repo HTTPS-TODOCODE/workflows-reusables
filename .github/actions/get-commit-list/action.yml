@@ -21,11 +21,13 @@ runs:
       shell: bash
       run: |
           LAST_SHA="${{ inputs.last-success-sha }}"
-
-          pwd
-          git remote get-url origin
-          git branch
-          git rev-parse HEAD
+      
+          echo "repository=${{ github.repository }}"
+          echo "ref=${{ github.ref }}"
+          echo "ref_name=${{ github.ref_name }}"
+          echo "workflow_ref=${{ github.workflow_ref }}"
+          echo "repository_owner=${{ github.repository_owner }}"
+          echo "event_repo=${{ github.event.repository.full_name }}"
           
           if [ -n "$LAST_SHA" ] && ! git -C "$GITHUB_WORKSPACE" cat-file -e "${LAST_SHA}^{commit}" 2>/dev/null; then
             echo "WARNING: Last successful SHA $LAST_SHA no longer exists in history."

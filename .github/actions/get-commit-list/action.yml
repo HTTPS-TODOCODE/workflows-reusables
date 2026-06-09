@@ -34,7 +34,13 @@ runs:
             # 1. Find the point where this branch diverged from its base
             #    development branch.
             echo "No baseline SHA found. Searching last divergement"
-            DIVERGED_SHA=$(git merge-base HEAD origin/development 2>/dev/null || echo "")
+            
+            DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD \
+              | sed 's@^refs/remotes/origin/@@')
+
+            echo "Default branch detected: $DEFAULT_BRANCH"
+
+            DIVERGED_SHA=$(git merge-base HEAD origin/develop 2>/dev/null || echo "")
           
             if [ -z "$DIVERGED_SHA" ]; then
               echo "No merge base found. Collecting all commits in history"

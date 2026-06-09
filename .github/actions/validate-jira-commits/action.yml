@@ -47,12 +47,12 @@ runs:
           # Extract the Jira key from this commit message
           CLEAN_MSG=$(echo "$COMMIT_MSG" | tr -d '[](){}')
           echo "CLEAN_MSG: '${CLEAN_MSG}'"
-          echo "JIRA_PREFIX raw value: '${JIRA_PREFIX}'"
-          ISSUE_KEY=$(echo "$CLEAN_MSG" | grep -oP "${JIRA_PREFIX}-[0-9]+" | head -1)
+          ISSUE_KEY=$(echo "$CLEAN_MSG" | grep -oP "${JIRA_PREFIX}-[0-9]+" | head -1 || true)
+          echo "Extracted ISSUE_KEY: '${ISSUE_KEY}'"
           
           if [ -z "$ISSUE_KEY" ]; then
             echo "ERROR: No Jira key found in: '$COMMIT_MSG'"
-            echo "Expected format: ${JIRA_PREFIX}-NUMBER anywhere in the message."
+            echo "Expected format: PROJECT-NUMBER anywhere in the message."
             FAILED=1
             continue
           fi

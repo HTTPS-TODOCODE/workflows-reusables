@@ -21,6 +21,8 @@ jobs:
       - name: Checkout Application Repository
         uses: actions/checkout@v4
         with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.ref }}
           fetch-depth: 0
 
       # EXTRACT LASTEST COMMITS SINCE LAST SUCCESSFULLY PUSH

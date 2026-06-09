@@ -22,13 +22,6 @@ runs:
       run: |
           LAST_SHA="${{ inputs.last-success-sha }}"
       
-          echo "repository=${{ github.repository }}"
-          echo "ref=${{ github.ref }}"
-          echo "ref_name=${{ github.ref_name }}"
-          echo "workflow_ref=${{ github.workflow_ref }}"
-          echo "repository_owner=${{ github.repository_owner }}"
-          echo "event_repo=${{ github.event.repository.full_name }}"
-          
           if [ -n "$LAST_SHA" ] && ! git cat-file -e "${LAST_SHA}^{commit}" 2>/dev/null; then
             echo "WARNING: Last successful SHA $LAST_SHA no longer exists in history."
             echo "Falling back to merge-base strategy."

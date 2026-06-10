@@ -46,7 +46,7 @@ jobs:
 
       - name: 'Detect tech stack'
         id: detect_stack
-        uses: ./.github/actions/detect-tech-stack
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/detect-tech-stack@feature/jagt-actions
 
       - name: 'Resolve effective stack'
         id: resolve_stack

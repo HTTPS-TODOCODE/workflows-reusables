@@ -1,0 +1,46 @@
+name: PR - DockerHub Comment
+description: >
+  Posts a summary comment on the pull request with
+  the DockerHub repository and pushed tags.
+
+inputs:
+  dockerhub-namespace:
+    description: Docker Hub namespace / organisation (vars.DOCKERHUB_NAMESPACE)
+    required: true
+  tags:
+    description: Newline-separated list of full image tags that were pushed
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Post comment on PR
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const namespace = "${{ inputs.dockerhub-namespace }}";
+          const rawTags   = `${{ inputs.tags }}`.trim().split('\n').filter(Boolean);
+
+          // Build one table row per tag
+          const rows = rawTags.map(fullTag => {
+            const [repo, tag] = fullTag.split(':');
+            return `| \`${repo}\` | \`${tag}\` |`;
+          }).join('\n');
+
+          const body = [
+            '🎉 **Build completed successfully!**',
+            'The following images are now available on DockerHub 🚀',
+            '',
+            '| Repository | Tag |',
+            '|------------|-----|',
+            rows,
+            '',
+            '🙌 Great job team!',
+          ].join('\n');
+
+          await github.rest.issues.createComment({
+            issue_number: context.payload.pull_request.number,
+            owner:        context.repo.owner,
+            repo:         context.repo.repo,
+            body,
+          });

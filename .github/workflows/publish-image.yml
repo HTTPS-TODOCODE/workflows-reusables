@@ -1,0 +1,125 @@
+name: Publish Image on DockerHub
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+on:
+  push:
+    branches:
+      - feature/**
+  pull_request:
+    types:
+      - closed
+
+jobs:
+# ────────────────────────────────────────────
+# 1. Feature branches → <namespace>/<repo>-dev:<sanitized-branch>
+# ────────────────────────────────────────────
+  publish-feature:
+    name: Publish feature image
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/feature/')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      
+      - name: Docker login + Buildx
+        uses: ./.github/actions/docker-setup
+        with:
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub-token:    ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Sanitize branch name
+        id: branch
+        # Replace every "/" with "-" so the tag is registry-safe
+        run: echo "tag=$(echo '${{ github.ref_name }}' | tr '/' '-')" >> $GITHUB_OUTPUT
+
+      - name: Build and push feature image
+        uses: ./.github/actions/docker-publish
+        with:
+          # Feature images are published to the "-dev" repository
+          tags: ${{ vars.DOCKERHUB_NAMESPACE }}/${{ github.event.repository.name }}-dev:${{ steps.branch.outputs.tag }}
+
+# ────────────────────────────────────────────
+# 2. Merged PRs
+#    → release  : <namespace>/<repo>:<version>  +  :latest
+#    → develop  : <namespace>/<repo>-dev:<version>
+# ────────────────────────────────────────────
+  publish-pr:
+    name: Publish merged-PR image
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.merged == true &&
+      (
+        github.base_ref == 'release'     ||
+        github.base_ref == 'develop'     ||
+        github.base_ref == 'development'
+      )
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Docker login + Buildx
+        uses: ./.github/actions/docker-setup
+        with:
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub-token:    ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # ── Version resolution ──────────────────
+      # Reads the version from package.json when it exists
+      # Reads the version from pom.xml when it exists
+      # Falls back to the short commit SHA otherwise.
+      - name: Resolve image version
+        id: version
+        run: |
+          if [ -f package.json ]; then
+            VERSION=$(jq -r '.version' package.json)
+
+          elif [ -f pom.xml ]; then
+            VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+
+          else
+            VERSION="${{ github.sha }}"
+            VERSION="${VERSION::7}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      # ── Tag matrix per target branch ────────
+      - name: Compute Docker tags
+        id: tags
+        env:
+          NAMESPACE: ${{ vars.DOCKERHUB_NAMESPACE }}
+          REPO:      ${{ github.event.repository.name }}
+          VERSION:   ${{ steps.version.outputs.version }}
+          BASE_REF:  ${{ github.base_ref }}
+        run: |
+          if [[ "$BASE_REF" == "release" ]]; then
+            # Stable release → versioned tag + :latest
+            TAGS="${NAMESPACE}/${REPO}:${VERSION}
+          ${NAMESPACE}/${REPO}:latest"
+
+          elif [[ "$BASE_REF" == "develop" || "$BASE_REF" == "development" ]]; then
+            # Dev release → versioned tag in the -dev repository
+            TAGS="${NAMESPACE}/${REPO}-dev:${VERSION}"
+          fi
+
+          # Multi-line output using the recommended heredoc syntax
+          echo "tags<<EOF"  >> $GITHUB_OUTPUT
+          echo "${TAGS}"    >> $GITHUB_OUTPUT
+          echo "EOF"        >> $GITHUB_OUTPUT
+
+      - name: Build and push PR image
+        id: publish
+        uses: ./.github/actions/docker-publish
+        with:
+          tags: ${{ steps.tags.outputs.tags }}
+
+      - name: Comment on PR
+        uses: ./.github/actions/docker-pr-comment
+        with:
+          dockerhub-namespace: ${{ vars.DOCKERHUB_NAMESPACE }}
+          tags:                ${{ steps.tags.outputs.tags }}

@@ -1,0 +1,27 @@
+name: Docker Build & Push
+description: >
+  Builds a Docker image from the repo Dockerfile
+  and pushes it to Docker Hub under the provided tags.
+
+inputs:
+  tags:
+    description: >
+      Newline-separated list of full image tags
+      (e.g. "namespace/repo:1.0.0\nnamespace/repo:latest").
+    required: true
+
+outputs:
+  tags:
+    description: The tags that were pushed (same value as input, for downstream steps)
+    value: ${{ inputs.tags }}
+
+runs:
+  using: composite
+  steps:
+    - name: Build and push image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: ./Dockerfile
+        tags: ${{ inputs.tags }}
+        push: true

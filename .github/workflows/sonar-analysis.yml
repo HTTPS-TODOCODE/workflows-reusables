@@ -1,6 +1,12 @@
 name: Sonar Analysis
 on:
   workflow_call:
+    inputs:
+      sonar-quality-gate-wait:
+        description: 'Wait for the SonarQube Quality Gate Result before finishing the Workflow'
+        required: false
+        type: boolean
+        default: true
     secrets:
       PROJECT_NAME:
         required: true
@@ -32,3 +38,4 @@ jobs:
           project-name: ${{ secrets.PROJECT_NAME }}
           sonar-url: ${{ secrets.SONAR_URL }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
+          sonar-quality-gate-wait: ${{ inputs.sonar-quality-gate-wait }}

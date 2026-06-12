@@ -31,5 +31,6 @@ runs:
           "-Dsonar.projectName='${{ inputs.project-name }}'" \
           "-Dsonar.host.url=${{ inputs.sonar-url }}" \
           "-Dsonar.token=${{ inputs.sonar-token }}" \
+          "-Dsonar.branch.name=${{ github.ref_name }}"
           "-Dsonar.qualitygate.wait=true"
       

@@ -25,6 +25,7 @@ jobs:
       # !!! JUST MAVEN PROJECTS SUPPORTED BY THE MOMENT
       # - Due the previous checkout now we are on our project content, so the actions
       #   will execute the full project analysis
+      - name: Execute SonarQube Analysis
         id: sonar-scan
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/sonar-maven-analyze@feature/kadanarpa-actions
         with:

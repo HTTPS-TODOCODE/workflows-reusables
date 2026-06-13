@@ -31,7 +31,7 @@ jobs:
         id: last-success
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/get-last-success@feature/kadanarpa-actions
         with:
-          workflow-name: 'commit-jira-validation.yml'
+          workflow-name: 'commit-validation.yml'
 
       # EXTRACT COMMIT COUNT TO BE VALIDATED
       # - Obtains last success ShaID from the previous step and use it to extract

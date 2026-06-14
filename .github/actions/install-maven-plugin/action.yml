@@ -1,0 +1,52 @@
+name: 'Install Maven Plugin'
+description: 'Installs a Maven plugin to the local repository'
+
+inputs:
+  plugin_repo:
+    description: 'The URL of the GitHub repository containing the Maven plugin'
+    required: true
+  plugin_version:
+    description: 'The version of the plugin to install (e.g., 1.0.0)'
+    required: true
+  maven_args:
+    description: 'Additional arguments to pass to the mvn install command'
+    required: false
+    default: ''
+  work_dir:
+    description: 'Local directory where the plugin will be cloned'
+    required: false
+    default: '/tmp/maven-plugin-src'
+
+outputs:
+  plugin_dir:
+    description: 'Absolute path where the plugin was cloned and built'
+    value: ${{ steps.install.outputs.plugin_dir }}
+
+runs:
+  using: composite
+  steps:
+    - name: Detect Maven POM
+      id: detect_pom
+      shell: bash
+      run: ${{ github.action_path }}/detect-pom.sh
+
+    - name: Set up JDK (safe)
+      uses: actions/setup-java@v5
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: ${{ steps.detect_pom.outputs.has_pom == 'true' && 'maven' || '' }}
+
+    - name: Install Maven Plugin
+      id: install
+      shell: bash
+      env:
+        PLUGIN_REPO_URL: ${{ inputs.plugin_repo }}
+        PLUGIN_REPO_TAG: ${{ inputs.plugin_version }}
+        MAVEN_ARGS: ${{ inputs.maven_args }}
+        WORK_DIR: ${{ inputs.work_dir }}
+
+
+
+        
+      run: ${{ github.action_path }}/install-plugin.sh

@@ -2,9 +2,16 @@ name: 'Set Version'
 description: 'Sets the project version in pom.xml using Maven Versions Plugin'
 
 inputs:
+  stack:
+    description: 'The workflow to set the version for (e.g. java-maven or node)'
+    required: true
   version:
     description: 'New version to set (e.g. 0.1.0 or 0.2.0-SNAPSHOT)'
     required: true
+  package_manager:
+    description: 'The package manager to use (e.g. maven or npm)'
+    required: false
+    default: ''
   commit:
     description: 'Whether to commit the version change'
     required: false
@@ -23,6 +30,7 @@ runs:
       env:
         STACK: ${{ inputs.stack }}
         NEW_VERSION: ${{ inputs.version }}
+        PACKAGE_MANAGER: ${{ inputs.package_manager }}
 
     - name: Commit version change
       if: ${{ inputs.commit == 'true' }}

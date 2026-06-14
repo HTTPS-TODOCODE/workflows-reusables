@@ -7,6 +7,9 @@ inputs:
   version:
     description: 'The version of the stack to set up (e.g., 21 for Java, 20 for Node.js)'
     required: false
+  package_manager:
+    description: 'The package manager to use (e.g., maven, npm)'
+    required: false
 
 runs:
   using: composite
@@ -17,9 +20,11 @@ runs:
       with:
         distribution: 'temurin'
         java-version: ${{ inputs.version || '21' }}
+        cache: ${{ inputs.package_manager }}
 
     - name: Setup Node.js
       if: ${{ inputs.stack == 'node' }}
       uses: actions/setup-node@v5
       with:
         node-version: ${{ inputs.version || '22' }}
+        cache: ${{ inputs.package_manager }}

@@ -48,36 +48,24 @@ jobs:
         id: detect_stack
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/detect-tech-stack@feature/jagt-actions
 
-      - name: 'Resolve effective stack'
-        id: resolve_stack
-        run: |
-          OVERRIDE="${{ inputs.stack }}"
-          DETECTED="${{ steps.detect.outputs.stack }}"
-          EFFECTIVE="${OVERRIDE:-$DETECTED}"
-          if [[ -z "$EFFECTIVE" || "$EFFECTIVE" == "none" ]]; then
-            echo "❌ Could not determine technology stack."
-            exit 1
-          fi
-          echo "effective=${EFFECTIVE}" >> $GITHUB_OUTPUT
-          echo "ℹ️ Using stack: $EFFECTIVE"
-
       - name: 'Setup environment'
-        uses: ./.github/actions/setup-environment
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/setup-environment@feature/jagt-actions
         with:
-          stack: ${{ steps.resolve_stack.outputs.effective }}
-          version: ${{ inputs.stack_version }}
+          stack: ${{ steps.detect_stack.outputs.stack }}
+          version: ${{ steps.detect_stack.outputs.stack_version }}
+          package_manager: ${{ steps.detect_stack.outputs.package_manager }}
 
       - name: 'Configure Git'
-        uses: ./.github/actions/configure-git
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/configure-git@feature/jagt-actions
         with:
           git_user_name: ${{ inputs.git_user_name }}
           git_user_email: ${{ inputs.git_user_email }}
 
       - name: 'Get current version'
         id: version
-        uses: ./.github/actions/get-version
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/get-version@feature/jagt-actions
         with:
-          stack: ${{ steps.resolve_stack.outputs.effective }}
+          stack: ${{ steps.detect_stack.outputs.stack }}
 
       - name: Validate that develop is SNAPSHOT
         shell: bash
@@ -104,7 +92,7 @@ jobs:
         run: git checkout -b "${{ steps.release_info.outputs.release_branch }}"
 
       - name: Create release tag
-        uses: ./.github/actions/create-git-tag
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/create-git-tag@feature/jagt-actions
         with:
           tag: ${{ steps.release_info.outputs.tag }}
           message: 'Release ${{ steps.release_info.outputs.tag }}'
@@ -117,16 +105,16 @@ jobs:
 
       - name: Compute next snapshot version
         id: next_snapshot
-        uses: ./.github/actions/bump-version-maven
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/bump-version-maven@feature/jagt-actions
         with:
           current_version: ${{ steps.version.outputs.base_version }}
           bump_type: ${{ inputs.bump_type }}
           snapshot: 'true'
 
       - name: Update develop to next snapshot
-        uses: ./.github/actions/set-version
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/set-version@feature/jagt-actions
         with:
-          stack: ${{ steps.resolve_stack.outputs.effective }}
+          stack: ${{ steps.detect_stack.outputs.stack }}
           version: ${{ steps.next_snapshot.outputs.new_version }}
           commit: 'true'
           commit_message: 'chore: bump develop to next snapshot version ${{ steps.next_snapshot.outputs.new_version }} [skip ci]'
@@ -141,7 +129,7 @@ jobs:
           echo "## ✅ Release Created" >> $GITHUB_STEP_SUMMARY
           echo "| | |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          echo "| Stack | \`${{ steps.stack.outputs.effective }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Stack | \`${{ steps.detect_stack.outputs.stack }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Release branch | \`${{ steps.release_info.outputs.release_branch }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Release version | \`${{ steps.release_info.outputs.release_version }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Tag | \`${{ steps.release_info.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY

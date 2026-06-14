@@ -45,8 +45,4 @@ runs:
         PLUGIN_REPO_TAG: ${{ inputs.plugin_version }}
         MAVEN_ARGS: ${{ inputs.maven_args }}
         WORK_DIR: ${{ inputs.work_dir }}
-
-
-
-        
       run: ${{ github.action_path }}/install-plugin.sh

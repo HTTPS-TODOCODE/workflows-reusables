@@ -5,6 +5,12 @@ outputs:
   stack:
     description: The detected technology stack (e.g., java-maven, node)
     value: ${{ steps.detect.outputs.stack }}
+  stack_version:
+    description: The detected version of the technology stack (e.g., Java 21, Node.js 22)
+    value: ${{ steps.detect.outputs.stack_version }}
+  package_manager:
+    description: The detected package manager (e.g., maven, npm)
+    value: ${{ steps.detect.outputs.package_manager }}
 
 runs:
   using: composite

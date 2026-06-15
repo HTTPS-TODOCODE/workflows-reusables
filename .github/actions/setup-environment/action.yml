@@ -15,7 +15,7 @@ runs:
   using: composite
   steps:
     - name: Setup Java
-      if: ${{ inputs.stack == 'java-maven' }}
+      if: ${{ inputs.stack == 'java' }}
       uses: actions/setup-java@v5
       with:
         distribution: 'temurin'

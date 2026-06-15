@@ -3,7 +3,7 @@
 set -euo pipefail
 
 case "$STACK" in
-  "java-maven")
+  "java")
     VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
     ;;
   "node")

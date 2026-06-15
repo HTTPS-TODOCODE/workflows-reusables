@@ -1,0 +1,55 @@
+name: 'Scaffold Project'
+description: 'Scaffolds a new project based on the specified technology stack and version.'
+
+inputs:
+  stack:
+    description: 'The technology stack to scaffold (e.g., java, node)'
+    required: true
+  version:
+    description: 'The version of the technology stack to scaffold (e.g., Java 21, Node.js 20)'
+    required: true
+  package_manager:
+    description: 'The package manager to use for scaffolding (e.g., maven, npm)'
+    required: true
+  group_id:
+    description: 'Group ID for Java projects (e.g., com.example)'
+    required: false
+  artifact_id:
+    description: 'Artifact ID for Java projects (e.g., my-app)'
+    required: false
+  package_name:
+    description: 'Package name for Java projects (e.g., com.example.myapp)'
+    required: false
+  project_name:
+    description: 'Project name (e.g., my-app)'
+    required: false
+  architecture:
+    description: 'Project architecture for Java projects (e.g., MVC, HEXAGONAL_MODULAR, HEXAGONAL_STANDARD)'
+    required: false
+  framework:
+    description: 'Framework to use(e.g., spring, angular, react)'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Generate scaffold
+      shell: bash
+      run: ${{ github.action_path }}/scaffold.sh
+      env:
+        STACK: ${{ inputs.stack }}
+        VERSION: ${{ inputs.version }}
+        PACKAGE_MANAGER: ${{ inputs.package_manager }}
+        GROUP_ID: ${{ inputs.group_id }}
+        ARTIFACT_ID: ${{ inputs.artifact_id }}
+        PACKAGE_NAME: ${{ inputs.package_name }}
+        PROJECT_NAME: ${{ inputs.project_name }}
+        SPRING_VERSION: 4.0.0
+        CONFIGURATION: YML
+        MAPSTRUCT: true
+        LOMBOK: true
+        PLUGIN_GROUP_ID: 'dev.jagt1806.plugin.scaffold'
+        PLUGIN_ARTIFACT_ID: 'maven-jagt1806-scaffold'
+        PLUGIN_VERSION: '0.1.0'
+        ARCHITECTURE: ${{ inputs.architecture }}
+        FRAMEWORK: ${{ inputs.framework }}

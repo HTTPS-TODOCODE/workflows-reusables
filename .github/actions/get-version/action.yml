@@ -3,7 +3,7 @@ description: Get Version from the project
 
 inputs:
   stack:
-    description: 'The workflow to get the version for (e.g. java-maven or node)'
+    description: 'The workflow to get the version for (e.g. java or node)'
     required: true
 
 outputs:

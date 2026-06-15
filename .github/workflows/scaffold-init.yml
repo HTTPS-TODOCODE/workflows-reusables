@@ -1,0 +1,149 @@
+name: '[Reusable] Scaffold & Initialize Repository'
+
+on:
+  workflow_call:
+    inputs:
+      stack:
+        description: 'Technology stack of the project (e.g., java, node)'
+        type: string
+        required: true
+      stack_version:
+        description: 'Technology stack version (e.g., Java: 21, Node.js: 20)'
+        type: string
+        required: true
+      package_manager:
+        description: 'Package manager for the project (e.g., maven, npm)'
+        type: string
+        required: true
+      architecute:
+        description: 'Project Java Plugin architecture (e.g., MVC, HEXAGONAL_MODULAR, HEXAGONAL_STANDARD)'
+        type: string
+        required: false
+      group_id:
+        description: 'Group ID for Java projects (e.g., com.example)'
+        type: string
+        required: false
+      artifact_id:
+        description: 'Artifact ID for Java projects (e.g., my-app)'
+        type: string
+        required: false
+      package_name:
+        description: 'Package name for Java projects (e.g., my-app)'
+        type: string
+        required: false
+      name:
+        description: 'Project name (e.g., my-app)'
+        type: string
+        required: false
+      create_develop:
+        description: 'Whether to create a develop branch after setup'
+        type: boolean
+        required: false
+        default: 'true'
+      main_version:
+        description: 'The version to set in the main branch (e.g., 0.0.0)'
+        type: string
+        required: false
+        default: '0.0.0'
+      framework:
+        description: 'Framework to use (e.g., spring, angular, react)'
+        type: string
+        required: false
+        default: 'none'
+
+jobs:
+  scaffold:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Configure Git
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/configure-git@feature/jagt-actions
+
+      - name: Install Maven plugin
+        if: ${{ inputs.package_manager == 'plugin' }}
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/install-maven-plugin@feature/jagt-actions
+        with:
+          plugin_repo: 'https://github.com/JAGT1806/maven-jagt1806-scaffold'
+          plugin_version: 'V0.1.0'
+          maven_args: '-DskipTests'
+
+      - name: Setup environment
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/setup-environment@feature/jagt-actions
+        with:
+          stack: ${{ inputs.stack }}
+          version: ${{ inputs.stack_version }}
+          package_manager: ${{ inputs.package_manager }}
+
+      - name: Scaffold project
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/scaffold-project@feature/jagt-actions
+        with:
+          stack: ${{ inputs.stack }}
+          version: ${{ inputs.stack_version }}
+          package_manager: ${{ inputs.package_manager }}
+          group_id: ${{ inputs.group_id }}
+          artifact_id: ${{ inputs.artifact_id }}
+          package_name: ${{ inputs.package_name }}
+          project_name: ${{ inputs.name }}
+          architecture: ${{ inputs.architecute }}
+          framework: ${{ inputs.framework }}
+
+      - name: Create develop branch
+        if: ${{ inputs.create_develop == 'true' }}
+        run: |
+          git fetch origin
+
+          if git show-ref --verify --quiet refs/remotes/origin/develop; then
+          echo "develop already exists"
+          
+          exit 0
+          fi
+      
+          git checkout -b develop
+
+      - name: Get version main
+        if: ${{ inputs.create_develop == 'true' }}
+        id: version_main
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/get-version@feature/jagt-actions
+        with:
+          stack: ${{ inputs.stack }}
+
+      - name: Bump version in main
+        if: ${{ inputs.create_develop == 'true' }}
+        id: bump_version
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/bump-version@feature/jagt-actions
+        with:
+          current_version: ${{ steps.version_main.outputs.base_version }}
+          bump_type: 'minor'
+          snapshot: 'true'
+
+      - name: Set develop version
+        if: ${{ inputs.create_develop == 'true' }}
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/set-version@feature/jagt-actions
+        with:
+          stack: ${{ inputs.stack }}
+          version: ${{ steps.bump_version.outputs.next_version }}
+          package_manager: ${{ inputs.package_manager }}
+          commit: true
+          commit_message: 'chore: bump version to ${{ steps.bump_version.outputs.next_version }} [skip ci]'
+
+      - name: Set develop version
+        if: ${{ inputs.create_develop == 'true' }}
+        run: git push origin develop
+
+      - name: Summary
+        run: |
+          echo "## ✅ Scaffold & Init Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Project | \`${{ inputs.artifact_id }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Architecture | \`${{ inputs.architecture }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Stack: | \`${{ inputs.stack }}:${{ inputs.stack_version }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Main version | \`${{ steps.version_main.outputs.base_version }}\` |" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ inputs.create_develop }}" == "true" ]]; then
+            echo "| Develop version | \`${{ steps.bump_version.outputs.next_version }}\` |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "> develop branch created from main." >> $GITHUB_STEP_SUMMARY
+          fi

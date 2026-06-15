@@ -19,7 +19,7 @@ inputs:
   commit_message:
     description: 'Commit message for version change'
     required: false
-    default: 'chore: bump version to {version} [skip ci]'
+    default: 'chore: bump version to {$version} [skip ci]'
 
 runs:
   using: 'composite'

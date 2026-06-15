@@ -22,4 +22,4 @@ echo "Installing plugin to local Maven repository"
 mvn clean install "$MAVEN_ARGS"
 
 echo "plugin_dir=$WORK_DIR" >> "$GITHUB_OUTPUT"
-echo "✅ Plugin installed from ${PLUGIN_VERSION}"
+echo "✅ Plugin installed from ${PLUGIN_REPO_URL} at tag ${PLUGIN_REPO_TAG}"

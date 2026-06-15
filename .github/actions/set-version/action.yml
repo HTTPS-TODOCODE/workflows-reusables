@@ -40,3 +40,5 @@ runs:
         COMMIT_MSG="${COMMIT_MSG/\{version\}/${{ inputs.version }}}"
         git add -A
         git diff --staged --quiet || git commit -m "${COMMIT_MSG}"
+        
+        git push origin HEAD:${GITHUB_REF#refs/heads/}

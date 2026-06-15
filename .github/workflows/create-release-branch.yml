@@ -76,6 +76,15 @@ jobs:
         shell: bash
         run: git checkout -b "${{ steps.release_info.outputs.release_branch }}"
 
+      - name: Set release version
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/set-version@feature/jagt-actions
+        with:
+          stack: ${{ steps.detect_stack.outputs.stack }}
+          version: ${{ steps.version.outputs.base_version }}
+          package_manager: ${{ steps.detect_stack.outputs.package_manager }}
+          commit: 'true'
+          commit_message: 'chore: set release version to ${{ steps.version.outputs.base_version }} [skip ci]'
+
       - name: Create release tag
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/create-git-tag@feature/jagt-actions
         with:

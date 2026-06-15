@@ -44,7 +44,7 @@ runs:
         ARTIFACT_ID: ${{ inputs.artifact_id }}
         PACKAGE_NAME: ${{ inputs.package_name }}
         PROJECT_NAME: ${{ inputs.project_name }}
-        SPRING_VERSION: 4.0.0
+        SPRING_BOOT_VERSION: 4.0.0
         CONFIGURATION: YML
         MAPSTRUCT: true
         LOMBOK: true

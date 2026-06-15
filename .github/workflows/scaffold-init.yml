@@ -90,7 +90,7 @@ jobs:
           framework: ${{ inputs.framework }}
 
       - name: Create develop branch
-        if: ${{ inputs.create_develop == 'true' }}
+        if: ${{ inputs.create_develop == true }}
         run: |
           git fetch origin
 
@@ -103,14 +103,14 @@ jobs:
           git checkout -b develop
 
       - name: Get version main
-        if: ${{ inputs.create_develop == 'true' }}
+        if: ${{ inputs.create_develop == true }}
         id: version_main
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/get-version@feature/jagt-actions
         with:
           stack: ${{ inputs.stack }}
 
       - name: Bump version in main
-        if: ${{ inputs.create_develop == 'true' }}
+        if: ${{ inputs.create_develop == true }}
         id: bump_version
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/bump-version@feature/jagt-actions
         with:
@@ -119,7 +119,7 @@ jobs:
           snapshot: 'true'
 
       - name: Set develop version
-        if: ${{ inputs.create_develop == 'true' }}
+        if: ${{ inputs.create_develop == true }}
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/set-version@feature/jagt-actions
         with:
           stack: ${{ inputs.stack }}
@@ -129,7 +129,7 @@ jobs:
           commit_message: 'chore: bump version to ${{ steps.bump_version.outputs.next_version }} [skip ci]'
 
       - name: Set develop version
-        if: ${{ inputs.create_develop == 'true' }}
+        if: ${{ inputs.create_develop == true }}
         run: git push origin develop
 
       - name: Summary

@@ -112,9 +112,9 @@ jobs:
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/set-version@feature/jagt-actions
         with:
           stack: ${{ steps.detect_stack.outputs.stack }}
-          version: ${{ steps.next_snapshot.outputs.new_version }}
+          version: ${{ steps.next_snapshot.outputs.next_version }}
           commit: 'true'
-          commit_message: 'chore: bump develop to next snapshot version ${{ steps.next_snapshot.outputs.new_version }} [skip ci]'
+          commit_message: 'chore: bump develop to next snapshot version ${{ steps.next_snapshot.outputs.next_version }} [skip ci]'
 
       - name: Push develop
         shell: bash

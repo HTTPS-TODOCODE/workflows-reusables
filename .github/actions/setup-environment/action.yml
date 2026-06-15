@@ -20,11 +20,11 @@ runs:
       with:
         distribution: 'temurin'
         java-version: ${{ inputs.version || '21' }}
-        cache: ${{ inputs.package_manager }}
+        # cache: ${{ inputs.package_manager }}
 
     - name: Setup Node.js
       if: ${{ inputs.stack == 'node' }}
       uses: actions/setup-node@v5
       with:
         node-version: ${{ inputs.version || '22' }}
-        cache: ${{ inputs.package_manager }}
+        # cache: ${{ inputs.package_manager }}

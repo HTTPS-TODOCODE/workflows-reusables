@@ -15,7 +15,7 @@ on:
         description: 'Package manager for the project (e.g., maven, npm)'
         type: string
         required: true
-      architecute:
+      architecture:
         description: 'Project Java Plugin architecture (e.g., MVC, HEXAGONAL_MODULAR, HEXAGONAL_STANDARD)'
         type: string
         required: false
@@ -39,7 +39,7 @@ on:
         description: 'Whether to create a develop branch after setup'
         type: boolean
         required: false
-        default: 'true'
+        default: true
       main_version:
         description: 'The version to set in the main branch (e.g., 0.0.0)'
         type: string
@@ -86,7 +86,7 @@ jobs:
           artifact_id: ${{ inputs.artifact_id }}
           package_name: ${{ inputs.package_name }}
           project_name: ${{ inputs.name }}
-          architecture: ${{ inputs.architecute }}
+          architecture: ${{ inputs.architecture }}
           framework: ${{ inputs.framework }}
 
       - name: Create develop branch

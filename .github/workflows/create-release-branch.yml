@@ -90,7 +90,7 @@ jobs:
 
       - name: Compute next snapshot version
         id: next_snapshot
-        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/bump-version-maven@feature/jagt-actions
+        uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/bump-version@feature/jagt-actions
         with:
           current_version: ${{ steps.version.outputs.base_version }}
           bump_type: ${{ inputs.bump_type }}

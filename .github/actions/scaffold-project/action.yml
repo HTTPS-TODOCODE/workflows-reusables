@@ -29,6 +29,14 @@ inputs:
   framework:
     description: 'Framework to use(e.g., spring, angular, react)'
     required: false
+  commit:
+    description: 'Whether to commit the scaffolded project to the repository'
+    required: false
+    default: 'true'
+  commit_message:
+    description: 'The commit message to use when committing the scaffolded project'
+    required: false
+    default: 'Scaffold initial project structure [skip ci]'
 
 runs:
   using: composite
@@ -53,3 +61,11 @@ runs:
         PLUGIN_VERSION: '0.1.0'
         ARCHITECTURE: ${{ inputs.architecture }}
         FRAMEWORK: ${{ inputs.framework }}
+
+    - name: Commit scaffolded project
+      if: ${{ inputs.commit == 'true' }}
+      shell: bash
+      run: |
+        git add -A
+        git diff --staged --quiet || git commit -m "${{ inputs.commit_message }}"
+        git push origin HEAD

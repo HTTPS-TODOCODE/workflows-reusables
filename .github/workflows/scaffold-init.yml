@@ -66,7 +66,7 @@ jobs:
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/install-maven-plugin@feature/jagt-actions
         with:
           plugin_repo: 'https://github.com/JAGT1806/maven-jagt1806-scaffold'
-          plugin_version: 'V0.1.0'
+          plugin_version: 'v0.1.0'
           maven_args: '-DskipTests'
 
       - name: Setup environment

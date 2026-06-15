@@ -85,6 +85,9 @@ jobs:
           commit: 'true'
           commit_message: 'chore: set release version to ${{ steps.version.outputs.base_version }} [skip ci]'
 
+      - name: Push release branch
+        run: git push origin ${{ steps.release_info.outputs.release_branch }}
+
       - name: Create release tag
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/create-git-tag@feature/jagt-actions
         with:

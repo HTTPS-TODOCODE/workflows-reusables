@@ -3,16 +3,6 @@ name: '[Reusable] Create Release Branch'
 on:
   workflow_call:
     inputs:
-      stack:
-        description: 'Technology stack of the project (e.g., java-maven, node)'
-        type: string
-        required: false
-        default: ''
-      stack_version:
-        description: 'Technology stack version (e.g., Java: 21, Node.js: 20)'
-        type: string
-        required: false
-        default: ''
       bump_type:
         description: 'Type of version bump for the release branch (major, minor, patch)'
         type: string
@@ -42,7 +32,6 @@ jobs:
         with:
           ref: develop
           fetch-depth: 0
-          token: ${{ secrets.gh_token }}
 
       - name: 'Detect tech stack'
         id: detect_stack

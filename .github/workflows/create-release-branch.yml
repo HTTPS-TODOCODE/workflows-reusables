@@ -18,10 +18,6 @@ on:
         type: string
         required: false
         default: 'github-actions[bot]@users.noreply.github.com'
-    secrets:
-      gh_token:
-        description: 'GitHub token with permissions to push branches'
-        required: true
 
 jobs:
   create_release:

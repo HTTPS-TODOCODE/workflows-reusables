@@ -74,7 +74,7 @@ jobs:
         with:
           stack: ${{ inputs.stack }}
           version: ${{ inputs.stack_version }}
-          package_manager: ${{ inputs.package_manager }}
+          package_manager: ${{ inputs.package_manager == 'plugin' && 'maven' || inputs.package_manager }}
 
       - name: Scaffold project
         uses: HTTPS-TODOCODE/workflows-reusables/.github/actions/scaffold-project@feature/jagt-actions

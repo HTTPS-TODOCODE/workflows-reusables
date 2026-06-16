@@ -113,6 +113,7 @@ jobs:
         with:
           stack: ${{ steps.detect_stack.outputs.stack }}
           version: ${{ steps.next_snapshot.outputs.next_version }}
+          package_manager: ${{ steps.detect_stack.outputs.package_manager }}
           commit: 'true'
           commit_message: 'chore: bump develop to next snapshot version ${{ steps.next_snapshot.outputs.next_version }} [skip ci]'
 

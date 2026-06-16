@@ -100,6 +100,9 @@ case "$STACK:$PACKAGE_MANAGER" in
     [[ -n "${PACKAGE_NAME:-}" ]] &&
       MVN_ARGS+=("-DpackageName=${PACKAGE_NAME}")
 
+    [[ -n "${INIT_VERSION:-}" ]] &&
+          MVN_ARGS+=("-Dversion=${INIT_VERSION}")
+
     mvn "${MVN_ARGS[@]}"
 
     move_to_root
@@ -125,6 +128,7 @@ case "$STACK:$PACKAGE_MANAGER" in
           -d artifactId="${ARTIFACT_ID}" \
           -d name="${PROJECT_NAME:-$ARTIFACT_ID}" \
           -d packageName="${PACKAGE_NAME:-$GROUP_ID}" \
+          -d version="${INIT_VERSION:-0.0.0}" \
           -o project.zip
 
         unzip -oq project.zip
@@ -141,7 +145,9 @@ case "$STACK:$PACKAGE_MANAGER" in
           -DgroupId="${GROUP_ID}" \
           -DartifactId="${ARTIFACT_ID}" \
           -DarchetypeArtifactId=maven-archetype-quickstart \
-          -DarchetypeVersion=1.4 \
+          -DarchetypeVersion=1.5 \
+          -Dversion="${INIT_VERSION:-0.0.0}" \
+          -Dmaven.compiler.release="${VERSION}" \
           -DinteractiveMode=false
 
         ;;

@@ -130,4 +130,4 @@ jobs:
           echo "| Release branch | \`${{ steps.release_info.outputs.release_branch }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Release version | \`${{ steps.release_info.outputs.release_version }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Tag | \`${{ steps.release_info.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Next develop | \`${{ steps.next_snapshot.outputs.new_version }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Next develop | \`${{ steps.next_snapshot.outputs.next_version }}\` |" >> $GITHUB_STEP_SUMMARY

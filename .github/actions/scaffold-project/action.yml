@@ -37,6 +37,10 @@ inputs:
     description: 'The commit message to use when committing the scaffolded project'
     required: false
     default: 'Scaffold initial project structure [skip ci]'
+  initial_version:
+    description: 'The version to set in the main branch after scaffolding (e.g., 0.0.0)'
+    required: false
+    default: '0.0.0'
 
 runs:
   using: composite
@@ -61,6 +65,7 @@ runs:
         PLUGIN_VERSION: '0.1.0'
         ARCHITECTURE: ${{ inputs.architecture }}
         FRAMEWORK: ${{ inputs.framework }}
+        INITIAL_VERSION: ${{ inputs.main_version }}
 
     - name: Commit scaffolded project
       if: ${{ inputs.commit == 'true' }}

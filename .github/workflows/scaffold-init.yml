@@ -88,6 +88,7 @@ jobs:
           project_name: ${{ inputs.name }}
           architecture: ${{ inputs.architecture }}
           framework: ${{ inputs.framework }}
+          initial_version: ${{ inputs.main_version }}
 
       - name: Create develop branch
         if: ${{ inputs.create_develop == true }}
